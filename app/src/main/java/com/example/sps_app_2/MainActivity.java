@@ -10,8 +10,8 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 
     // Declare the widget variables.
-    private Button buttonTest;
-    private Button buttonTrain;
+    private Button buttonTest;  // Button to go to the testing page from main page
+    private Button buttonTrain; // Button to go to the training page from main page
 
 
     @Override
@@ -20,8 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        // Declare the widget variables.
-        // findViewById allows us to grab the button from vies.
+        // DecInitialize button variables.
         buttonTest = (Button) findViewById(R.id.buttonTraining);
         buttonTrain = (Button) findViewById(R.id.buttonTesting);
 
@@ -31,12 +30,12 @@ public class MainActivity extends AppCompatActivity {
                 switchToTrainingActivity();
             }
         });
-
         buttonTest.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 switchToTestingActivity();
             }
         });
+
     }
 
     private void switchToTrainingActivity() {
