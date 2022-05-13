@@ -21,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         // DecInitialize button variables.
-        buttonTest = (Button) findViewById(R.id.buttonTraining);
-        buttonTrain = (Button) findViewById(R.id.buttonTesting);
+        buttonTest = (Button) findViewById(R.id.buttonTesting);
+        buttonTrain = (Button) findViewById(R.id.buttonTraining);
 
 
         buttonTrain.setOnClickListener(new View.OnClickListener() {
