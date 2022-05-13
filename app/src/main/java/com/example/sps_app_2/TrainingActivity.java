@@ -20,28 +20,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.crypto.Mac;
 
 public class TrainingActivity extends AppCompatActivity {
 
     private Button DataButton; // Now it is unused
     private WifiManager wifiManager;
 
+
     String FILE_NAME = "RSSIdata";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_training2);
+        setContentView(R.layout.activity_training);
         Log.i("debug","#1123");
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
 
         DataButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 String input_cell = "Cell1";
-                // Set wifi manager.
-                wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
                 Log.i("debug","#1");
                 // HashMap to save all the data. Later saved
                 HashMap<String,ArrayList<Integer>> DataHash = new HashMap<>();
