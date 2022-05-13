@@ -23,8 +23,8 @@ public class MainActivity extends AppCompatActivity {
         Log.i("debug","test");
         // Declare the widget variables.
         // findViewById allows us to grab the button from vies.
-        buttonTest = (Button) findViewById(R.id.buttonTraining);
-        buttonTrain = (Button) findViewById(R.id.buttonTesting);
+        buttonTest = (Button) findViewById(R.id.buttonTesting);
+        buttonTrain = (Button) findViewById(R.id.buttonTraining);
 
 
         buttonTrain.setOnClickListener(new View.OnClickListener() {

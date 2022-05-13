@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class TrainingActivity extends AppCompatActivity {
@@ -33,14 +34,17 @@ public class TrainingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training);
-        Log.i("debug","#1123");
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
+        DataButton = (Button) findViewById(R.id.buttonTrain2);
 
         DataButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
+                // Wifi manager
+                wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
                 String input_cell = "Cell1";
+
                 Log.i("debug","#1");
                 // HashMap to save all the data. Later saved
                 HashMap<String,ArrayList<Integer>> DataHash = new HashMap<>();
@@ -51,18 +55,23 @@ public class TrainingActivity extends AppCompatActivity {
                 Log.i("debug","#2");
 
                 //Start of while loop
-                while (endLoop-beginTime > 300000) {
+                while (endLoop-beginTime < 300000) {
                     Log.i("debug","#3");
 
                     // Capture start loop
-                    long beginLoop = currentTimeMillis();
+//                    long beginLoop = currentTimeMillis();
                     Log.i("debug","#4");
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
                     // Perform after each second a scan
-                    if (beginLoop - endLoop > 1000) {
+//                    if (beginLoop - endLoop > 1000) {
                         // Start a wifi scan.
                         wifiManager.startScan();
-                        Log.i("debug","#5");
+                        Log.i("debug1","#5");
 
                         // Store results in a list.
                         List<ScanResult> scanResults = wifiManager.getScanResults();
@@ -90,7 +99,7 @@ public class TrainingActivity extends AppCompatActivity {
                         }
                         endLoop = currentTimeMillis();
                     }
-                }
+
                 Log.i("debug","#9");
 
                 FileOutputStream fos = null;
