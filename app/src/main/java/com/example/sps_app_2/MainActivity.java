@@ -13,10 +13,12 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonTest;
     private Button buttonTrain;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Declare the widget variables.
         // findViewById allows us to grab the button from vies.
@@ -44,5 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private void switchToTestingActivity() {
         Intent switchActivityIntent = new Intent(this, TestingActivity.class);
         startActivity(switchActivityIntent);
+
     }
 }
