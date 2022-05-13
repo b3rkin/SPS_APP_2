@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SPS_APP_2">
         <activity
+            android:name=".TrainingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TestingActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
