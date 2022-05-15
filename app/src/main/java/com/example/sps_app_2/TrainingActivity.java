@@ -55,78 +55,40 @@ public class TrainingActivity extends AppCompatActivity {
                 Log.i("debug","#2");
 
                 //Start of while loop
-                while (endLoop-beginTime < 300000) {
-                    Log.i("debug","#3");
+                Log.i("debug","#3");
+                wifiManager.startScan();
+                Log.i("debug1","#4");
 
-                    // Capture start loop
-//                    long beginLoop = currentTimeMillis();
-                    Log.i("debug","#4");
-                    try {
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                // Store results in a list.
+                List<ScanResult> scanResults = wifiManager.getScanResults();
+                Log.i("debug", scanResults.toString());
 
-                    // Perform after each second a scan
-//                    if (beginLoop - endLoop > 1000) {
-                        // Start a wifi scan.
-                        wifiManager.startScan();
-                        Log.i("debug1","#5");
+                for (ScanResult scanResult : scanResults) {
+                    Log.i("debug","#6");
 
-                        // Store results in a list.
-                        List<ScanResult> scanResults = wifiManager.getScanResults();
+                    String MacAddress = scanResult.BSSID;
+                    Integer RSSI = scanResult.level;
 
-                        for (ScanResult scanResult : scanResults) {
-                            Log.i("debug","#6");
+                    if (DataHash.containsKey(MacAddress)) {
+                        Log.i("debug","#7");
 
-                            String MacAddress = scanResult.BSSID;
-                            Integer RSSI = scanResult.level;
+                        ArrayList<Integer> RSSIValues = new ArrayList<>();
+                        RSSIValues.add(RSSI);
+                        DataHash.put(MacAddress, RSSIValues);
+                    } else {
+                        Log.i("debug","#8");
 
-                            if (DataHash.containsKey(MacAddress)) {
-                                Log.i("debug","#7");
-
-                                ArrayList<Integer> RSSIValues = new ArrayList<>();
-                                RSSIValues.add(RSSI);
-                                DataHash.put(MacAddress, RSSIValues);
-                            } else {
-                                Log.i("debug","#8");
-
-                                ArrayList<Integer> NewList = DataHash.get(MacAddress);
-                                assert NewList != null;
-                                NewList.add(RSSI);
-                                DataHash.put(MacAddress, NewList);
-                            }
-                        }
-                        endLoop = currentTimeMillis();
-                    }
-
-                Log.i("debug","#9");
-
-                FileOutputStream fos = null;
-
-                try{
-                    Log.i("debug","#10");
-
-                    fos = openFileOutput(FILE_NAME,MODE_APPEND);
-                    Log.i("debug","#11");
-
-                    fos.write(DataHash.toString().getBytes());
-                    Log.i("debug","#12");
-
-                    Toast.makeText(getApplicationContext(), "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
-                } catch (FileNotFoundException e){
-                    e.printStackTrace();
-                } catch (IOException e){
-                    e.printStackTrace();
-                } finally{
-                    if (fos != null){
-                        try{
-                            fos.close();
-                        } catch(IOException e){
-                            e.printStackTrace();
-                        }
+                        ArrayList<Integer> NewList = DataHash.get(MacAddress);
+                        assert NewList != null;
+                        NewList.add(RSSI);
+                        DataHash.put(MacAddress, NewList);
                     }
                 }
+                endLoop = currentTimeMillis();
+
+//                Toast.makeText(getApplicationContext(),DataHash.toString(),Toast.LENGTH_LONG).show();
+                Log.i("debug","#9");
+
 
             }
         });
