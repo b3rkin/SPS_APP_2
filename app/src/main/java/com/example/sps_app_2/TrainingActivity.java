@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
@@ -21,77 +22,127 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-
 public class TrainingActivity extends AppCompatActivity {
 
-    private Button DataButton; // Now it is unused
+    private Button dataButton;
     private WifiManager wifiManager;
-
-
-    String FILE_NAME = "RSSIdata";
+    private EditText cell;
+    private EditText day;
+    private EditText direction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training);
 
-        DataButton = (Button) findViewById(R.id.buttonTrain2);
+        // Register the button and text boxes
+        dataButton = (Button) findViewById(R.id.buttonTrain2);
+        cell = (EditText) findViewById(R.id.editText);
+        day = (EditText) findViewById(R.id.editText2);
+        direction = (EditText) findViewById(R.id.editText3);
 
-        DataButton.setOnClickListener(new View.OnClickListener() {
+        // Button click to start the measurement
+        dataButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 // Wifi manager
                 wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
-                String input_cell = "Cell1";
+                // Get Cell, day and direction
+                String input_cell = cell.getText().toString() + "_" + day.getText().toString() +"_" + direction.getText().toString();
 
-                Log.i("debug","#1");
+
                 // HashMap to save all the data. Later saved
                 HashMap<String,ArrayList<Integer>> DataHash = new HashMap<>();
 
                 // Timing variables
                 long beginTime = currentTimeMillis();
                 long endLoop = currentTimeMillis();
-                Log.i("debug","#2");
+                int iter = 0;
+
+                Toast.makeText(getApplicationContext(),"measurement started!",Toast.LENGTH_LONG).show();
 
                 //Start of while loop
-                Log.i("debug","#3");
-                wifiManager.startScan();
-                Log.i("debug1","#4");
+                while (endLoop-beginTime < 300000) {
 
-                // Store results in a list.
-                List<ScanResult> scanResults = wifiManager.getScanResults();
-                Log.i("debug", scanResults.toString());
+                    // Start scan
+                    wifiManager.startScan();
 
-                for (ScanResult scanResult : scanResults) {
-                    Log.i("debug","#6");
+                    iter = iter + 1;
 
-                    String MacAddress = scanResult.BSSID;
-                    Integer RSSI = scanResult.level;
+                    // Store results in a list.
+                    List<ScanResult> scanResults = wifiManager.getScanResults();
+                    for (ScanResult scanResult : scanResults) {
 
-                    if (DataHash.containsKey(MacAddress)) {
-                        Log.i("debug","#7");
+                        String MacAddress = scanResult.BSSID;
+                        Integer RSSI = scanResult.level;
 
-                        ArrayList<Integer> RSSIValues = new ArrayList<>();
-                        RSSIValues.add(RSSI);
-                        DataHash.put(MacAddress, RSSIValues);
-                    } else {
-                        Log.i("debug","#8");
-
-                        ArrayList<Integer> NewList = DataHash.get(MacAddress);
-                        assert NewList != null;
-                        NewList.add(RSSI);
-                        DataHash.put(MacAddress, NewList);
+                        // Check if we already measured the mac address
+                        if (DataHash.containsKey(MacAddress)) {
+                            ArrayList<Integer> NewList = DataHash.get(MacAddress);
+                            assert NewList != null;
+                            NewList.add(RSSI);
+                            DataHash.put(MacAddress, NewList);
+                        } else {
+                            ArrayList<Integer> RSSIValues = new ArrayList<>();
+                            RSSIValues.add(RSSI);
+                            DataHash.put(MacAddress, RSSIValues);
+                        }
                     }
+
+                    // Each measurement takes one second
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Log.i("debug",Integer.toString(iter));
+
+                    endLoop = currentTimeMillis();
                 }
-                endLoop = currentTimeMillis();
 
-//                Toast.makeText(getApplicationContext(),DataHash.toString(),Toast.LENGTH_LONG).show();
-                Log.i("debug","#9");
-
-
-            }
+                // Save the received data
+                save_file(DataHash,input_cell);
+                }
         });
+    }
+
+    /**
+     * Saving the retrieved data in a correct format
+     * @param Data the RSSI values ordered per MAC address
+     * @param aspects Useful aspects of the measurement
+     */
+    void save_file(HashMap<String,ArrayList<Integer>> Data, String aspects){
+
+        String FILE_NAME = "saved_data_cell" + aspects + ".txt";
+
+        String finalData = "";
+
+        // Iterate through loop and put it in correct file
+        for (HashMap.Entry<String, ArrayList<Integer>> set :
+                Data.entrySet()) {
+            finalData = finalData + set.getKey() + "," + set.getValue() + "\n";
+        }
+
+        FileOutputStream fos = null;
+
+        try{
+            fos = openFileOutput(FILE_NAME,MODE_APPEND);
+            fos.write(finalData.getBytes());
+            Toast.makeText(getApplicationContext(), "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        } finally{
+            if (fos != null){
+                try{
+                    fos.close();
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
 
