@@ -63,7 +63,7 @@ public class TrainingActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),"measurement started!",Toast.LENGTH_LONG).show();
 
                 //Start of while loop
-                while (endLoop-beginTime < 300000) {
+                while (endLoop-beginTime < 120000) {
 
                     // Start scan
                     wifiManager.startScan();
