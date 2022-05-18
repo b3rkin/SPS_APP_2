@@ -63,7 +63,7 @@ public class TrainingActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),"measurement started!",Toast.LENGTH_LONG).show();
 
                 //Start of while loop
-                while (endLoop-beginTime < 120000) {
+                while (endLoop-beginTime < 300000) {
 
                     // Start scan
                     wifiManager.startScan();
@@ -127,7 +127,7 @@ public class TrainingActivity extends AppCompatActivity {
         FileOutputStream fos = null;
 
         try{
-            fos = openFileOutput(FILE_NAME,MODE_APPEND);
+            fos = openFileOutput(FILE_NAME,MODE_PRIVATE);
             fos.write(finalData.getBytes());
             Toast.makeText(getApplicationContext(), "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
         } catch (FileNotFoundException e){
