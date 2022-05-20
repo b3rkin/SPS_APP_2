@@ -54,6 +54,10 @@ public class TrainingActivity extends AppCompatActivity {
 
                 // HashMap to save all the data. Later saved
                 HashMap<String,ArrayList<Integer>> DataHash = new HashMap<>();
+                boolean testFlag = false;
+
+                // Store data to test training model as using hashmap is inconvenient
+                List <String> testWifiDesired = new ArrayList<>();
 
                 // Timing variables
                 long beginTime = currentTimeMillis();
@@ -63,7 +67,7 @@ public class TrainingActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),"measurement started!",Toast.LENGTH_LONG).show();
 
                 //Start of while loop
-                while (endLoop-beginTime < 300000) {
+                while (endLoop-beginTime < 30000) {
 
                     // Start scan
                     wifiManager.startScan();
@@ -72,10 +76,19 @@ public class TrainingActivity extends AppCompatActivity {
 
                     // Store results in a list.
                     List<ScanResult> scanResults = wifiManager.getScanResults();
+
+
                     for (ScanResult scanResult : scanResults) {
 
                         String MacAddress = scanResult.BSSID;
                         Integer RSSI = scanResult.level;
+
+                        if (testFlag){
+                            testWifiDesired.add("\n" + scanResult.BSSID);
+                            testWifiDesired.add(Integer.toString(scanResult.level));
+                            Log.i("debug","passed test flag #1");
+
+                        }
 
                         // Check if we already measured the mac address
                         if (DataHash.containsKey(MacAddress)) {
@@ -90,6 +103,13 @@ public class TrainingActivity extends AppCompatActivity {
                         }
                     }
 
+                    if (testFlag){
+                        Log.i("debug","passed test flag #2");
+
+                        break;
+                    }
+
+
                     // Each measurement takes one second
                     try {
                         TimeUnit.SECONDS.sleep(1);
@@ -99,6 +119,12 @@ public class TrainingActivity extends AppCompatActivity {
                     Log.i("debug",Integer.toString(iter));
 
                     endLoop = currentTimeMillis();
+                }
+
+                if (testFlag){
+                    String testData = testWifiDesired.toString();
+                    save_file_test(testData,"testData" + input_cell + ".txt");
+                    Log.i("debug","passed test flag #3");
                 }
 
                 // Save the received data
@@ -129,6 +155,29 @@ public class TrainingActivity extends AppCompatActivity {
         try{
             fos = openFileOutput(FILE_NAME,MODE_PRIVATE);
             fos.write(finalData.getBytes());
+            Toast.makeText(getApplicationContext(), "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        } finally{
+            if (fos != null){
+                try{
+                    fos.close();
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    void save_file_test(String testData, String FILE_NAME){
+
+        FileOutputStream fos = null;
+
+        try{
+            fos = openFileOutput(FILE_NAME,MODE_APPEND);
+            fos.write(testData.getBytes());
             Toast.makeText(getApplicationContext(), "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
         } catch (FileNotFoundException e){
             e.printStackTrace();
