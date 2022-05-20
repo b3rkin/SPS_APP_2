@@ -55,6 +55,7 @@ def cleanup_csv(DataFile):
         text = text.replace("[", "")
         text = text.replace("]", "")
         text = text.replace(" ", "")
+        text = text.replace("\"", "")
     
     with open(DataFile, 'w') as my_file:
         my_file.write(text)
@@ -99,71 +100,61 @@ def duplicate_check(day):
 Walks through obtained data files and saves for each mac address the pmf per cell. Each mac address gets its own file. 
 """
 
-def create_pmf(day, direction):
+def create_pmf(dir,cell):
 
-    cell_number = 15 # Number of cells that will be trained
     PMFBuffer = [0 for i in range(100)] # Assume signal strength values range from 0 to -100
+    df_init = pd.read_csv(dir) # Read the cell data into a df
+    sampleSize = df_init.shape[1]-1 # Maximum number of samples for a single measurement
 
-    # Iterate over files for each cells training data
-    for i in range(cell_number):
+    # Iterate over each row of the dataframe
+    for index, row in df_init.iterrows():
+        file_name_MAC = "model/" + row[0] + ".csv" # File where the radar map will be placed
+        
+        if(exists(file_name_MAC)): # If the file already exists insert new row
 
-        trainingDataFile = "TrainingData/trainMonday16/saved_data_cell" + str(i+1)+ "_" + day + "_" + all + ".txt"
+            for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
+                if(isinstance(row[j+1], int)): # Check if there is a sample at the index. not NaN
+                    PMFBuffer[int(-row[j+1])] +=1
 
-        # Format each file before processing
-        format_txt(trainingDataFile)
+            # Obtain sum of the histogram for normalization
+            sum = 0;     
+            for j in range(0, len(PMFBuffer)):    
+                sum = sum + PMFBuffer[j];  
 
-        df_init = pd.read_csv(trainingDataFile) # Read the cell data into a df
-        sampleSize = df_init.shape[1]-1 # Maximum number of samples for a single measurement
+            for j in range(len(PMFBuffer)): # Normalize histogram for pmf
+                PMFBuffer[j] = PMFBuffer[j]/float(sum)
 
-        # Iterate over each row of the dataframe
-        for index, row in df_init.iterrows():
-            file_name_MAC = "model/" + row[0] + ".csv" # File where the radar map will be placed
+            df_tmp1 = {'Cells': "cell"+str(cell+1), 'PMF':PMFBuffer} # Temp df    
             
-            if(exists(file_name_MAC)): # If the file already exists insert new row
+            df_tmp = pd.read_csv(file_name_MAC) # Read the map to insert new pmf
+            df_tmp = df_tmp.append(df_tmp1, ignore_index = True)
+            df_tmp.to_csv(file_name_MAC, index=False)
+            PMFBuffer = [0 for q in range(100)]
 
-                for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
-                    if(isinstance(row[j+1], int)): # Check if there is a sample at the index. not NaN
-                        PMFBuffer[int(-row[j+1])] +=1
+        else: # If the file does not exist, create and format the file
 
-                # Obtain sum of the histogram for normalization
-                sum = 0;     
-                for j in range(0, len(PMFBuffer)):    
-                    sum = sum + PMFBuffer[j];  
+            for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
+                if(isinstance(row[j+1], int)): # Check if there is a sample at the index. not NaN
+                    PMFBuffer[int(-row[j+1])] +=1
+            
+            # Obtain sum of the histogram for normalization
+            sum = 0;     
+            for j in range(0, len(PMFBuffer)):    
+                sum = sum + PMFBuffer[j]; 
 
-                for j in range(len(PMFBuffer)): # Normalize histogram for pmf
-                    PMFBuffer[j] = PMFBuffer[j]/float(sum)
+            for j in range(len(PMFBuffer)): # Normalize histogram for pmf
+                PMFBuffer[j] = PMFBuffer[j]/float(sum)
 
-                df_tmp1 = {'Cells': "cell"+str(i+1), 'PMF':PMFBuffer} # Temp df    
-                
-                df_tmp = pd.read_csv(file_name_MAC) # Read the map to insert new pmf
-                df_tmp = df_tmp.append(df_tmp1, ignore_index = True)
-                df_tmp.to_csv(file_name_MAC, index=False)
-                PMFBuffer = [0 for q in range(100)]
-
-            else: # If the file does not exist, create and format the file
-
-                for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
-                    if(isinstance(row[j+1], int)): # Check if there is a sample at the index. not NaN
-                        PMFBuffer[int(-row[j+1])] +=1
-                
-                # Obtain sum of the histogram for normalization
-                sum = 0;     
-                for j in range(0, len(PMFBuffer)):    
-                    sum = sum + PMFBuffer[j]; 
-
-                for j in range(len(PMFBuffer)): # Normalize histogram for pmf
-                    PMFBuffer[j] = PMFBuffer[j]/float(sum)
-
-                df_tmp = pd.DataFrame([['cell' + str(i+1), PMFBuffer]])
-                df_tmp.columns = ['Cells', 'PMF']
-                df_tmp.to_csv(file_name_MAC, index=False)
-                PMFBuffer = [0 for q in range(100)]
+            df_tmp = pd.DataFrame([['cell' + str(cell+1), PMFBuffer]])
+            df_tmp.columns = ['Cells', 'PMF']
+            df_tmp.to_csv(file_name_MAC, index=False)
+            PMFBuffer = [0 for q in range(100)]
 
 """
 Used to combine the different csv files of the different directions 
 """
 
-# Gives still some strange csv file. Goes wrong with indexing. Look at cell 2 to check why. 
+
 def concat_directions(parentDirectory, day):
     
     for i in range(2,3):
@@ -201,8 +192,25 @@ def concat_directions(parentDirectory, day):
             print(northDf)
         totalDf.to_csv("saved_data_cell" + str(i) + "_all.csv", header = False, index = False)
 
+def add_missing_cells(dir,cell_number):
+    emptyPMF = [0. for i in range(100)] # Init empty pmf to insert for missing cells
+    if(exists(dir)): 
+        df = pd.read_csv(dir) # Read the cell data into a df
+        cells = df['Cells'].tolist() # Get list of present celss
+        for cell in range(1, cell_number+1):
+            if not 'cell'+ str(cell) in cells:
+                df_tmp = {'Cells': 'cell'+ str(cell), 'PMF':emptyPMF} # Temp df    
+                df = df.append(df_tmp, ignore_index = True)
+                df = df.sort_values('Cells') # Sort so that rows go from cell1 to cell<cell_number> 
+                df.to_csv(dir, index=False, header = None)
+            else:
+                df.to_csv(dir, index=False, header = None) # To get rid of the header
 
-# Make function that filters low occuring mac addresses 
+    else:
+        print("Directory does not exist")
+    
+
+    # Make function that filters low occuring mac addresses 
 def filterLowMac():
     return 0
-    
+        
