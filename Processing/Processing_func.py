@@ -154,43 +154,66 @@ def create_pmf(dir,cell):
 Used to combine the different csv files of the different directions 
 """
 
-
-def concat_directions(parentDirectory, day):
+def concat_directions(parentDirectory, day, cell):
     
-    for i in range(2,3):
-        pathNorth = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + "_North.txt")
-        pathEast  = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + "_East.txt")
-        pathSouth = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + "_South.txt")
-        pathWest  = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + "_West.txt")
+    totall = dict()
+
+    fourDirections = ["South","West","North","East"]
+    
+    for dir in fourDirections:
         
-        northDf = pd.read_csv(pathNorth, header = None)
-        eastDf = pd.read_csv(pathEast, header = None)
-        southDf = pd.read_csv(pathSouth, header = None)
-        westDf = pd.read_csv(pathWest, header = None)
+        filename = "saved_data_cell" + str(cell) + "_" + day + "_" + dir + ".txt"
+        path = os.path.join(parentDirectory,"GatherData_Bayes", day +"2_dir",filename)
 
-                
-        # Set mac address as index
-        northDf.set_index(0)
+        # Put all the mac addresses with RSSI values in a dict
+        with open(path,"r") as dataFile:
+            
+            for item in dataFile:
+                split_list = item.split(",",1)
+                if split_list[0] in totall.keys():
+                    totall[split_list[0]].append(split_list[1].split(","))
+                else:
+                    totall[split_list[0]] = split_list[1].split(",")
+            dataFile.close()
+    
+    pathNew = os.path.join(parentDirectory, "GatherData_Bayes", day +"2_dir", "saved_data_cell" + str(cell) + "_All.txt")
+    
+    # Save the dict 
+    with open(pathNew, 'w') as f: 
+        for key, value in totall.items(): 
+            f.write('%s,%s\n' % (key, value))
+        f.close()
+    
+    # Clean up the file to make it a proper csv 
+    cleanup_csv(pathNew)
 
-        northDf.to_csv("saved_data_north" + str(i) + "_all.csv", header = False, index = False)
+ def filter_top_mac(dataFile,interest,saveLoc):
 
-        eastDf.set_index(0)
+    dataFrame = pd.read_csv(dataFile, header = None)
+    lengthDf = len(dataFrame)
 
-        eastDf.to_csv("saved_data_east" + str(i) + "_all.csv", header = False, index = False)
+    assert interest<=lengthDf, "interest value higher than number of MACs"
 
-        southDf.set_index(0)
-        southDf.to_csv("saved_data_south" + str(i) + "_all.csv", header = False, index = False)
+    nanOverview = np.zeros((lengthDf,2)) # index,number of NaNs
+    
+    # Fill first column with indeces
+    for idx in range(lengthDf):
+        nanOverview[idx][0] = idx
 
-        westDf.set_index(0)
-        westDf.to_csv("saved_data_west" + str(i) + "_all.csv", header = False, index = False)
+    # Fill second column with number of NaN per row 
+    for idx in range(lengthDf):
+        nanOverview[idx][1] = dataFrame.loc[idx, :].isnull().sum()
+    
+    nanOverview[0][1] = 100 
+    
+    # sort nanOverview based on the number of occured NaN values 
+    nanSort = nanOverview[nanOverview[:, 1].argsort()]
+    topIdx = nanSort[:interest,0]
+    top = dataFrame.iloc[topIdx]
 
-        northEastDf = pd.concat([northDf,eastDf],axis = 1)
-        northEastWestDf = pd.concat([northEastDf,westDf],axis = 1)
-        totalDf = pd.concat([northEastWestDf, southDf], axis = 1)
+    top.to_csv(saveLoc,index = False, header = False)
+    cleanup_csv(saveLoc)
 
-        if i==2:
-            print(northDf)
-        totalDf.to_csv("saved_data_cell" + str(i) + "_all.csv", header = False, index = False)
 
 def add_missing_cells(dir,cell_number):
     emptyPMF = [0. for i in range(100)] # Init empty pmf to insert for missing cells
@@ -208,9 +231,4 @@ def add_missing_cells(dir,cell_number):
 
     else:
         print("Directory does not exist")
-    
-
-    # Make function that filters low occuring mac addresses 
-def filterLowMac():
-    return 0
-        
+   
