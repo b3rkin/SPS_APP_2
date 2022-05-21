@@ -103,38 +103,43 @@ Walks through obtained data files and saves for each mac address the pmf per cel
 def create_pmf(dir,cell):
 
     PMFBuffer = [0 for i in range(100)] # Assume signal strength values range from 0 to -100
-    df_init = pd.read_csv(dir) # Read the cell data into a df
+    df_init = pd.read_csv(dir,header = None) # Read the cell data into a df
     sampleSize = df_init.shape[1]-1 # Maximum number of samples for a single measurement
 
     # Iterate over each row of the dataframe
     for index, row in df_init.iterrows():
-        file_name_MAC = "model/" + row[0] + ".csv" # File where the radar map will be placed
-        
+        file_name_MAC = "MACpmf/" + row[0].replace(":","_") + ".csv" # File where the radar map will be placed, without the replace function couldn't save it on windows 
+
         if(exists(file_name_MAC)): # If the file already exists insert new row
-
             for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
-                if(isinstance(row[j+1], int)): # Check if there is a sample at the index. not NaN
+                
+                if not pd.isna(row[j+1]): # Check if there is a sample at the index. not NaN
                     PMFBuffer[int(-row[j+1])] +=1
-
+            
             # Obtain sum of the histogram for normalization
             sum = 0;     
             for j in range(0, len(PMFBuffer)):    
                 sum = sum + PMFBuffer[j];  
 
             for j in range(len(PMFBuffer)): # Normalize histogram for pmf
-                PMFBuffer[j] = PMFBuffer[j]/float(sum)
+                PMFBuffer[j] = round(PMFBuffer[j]/float(sum),3)
 
-            df_tmp1 = {'Cells': "cell"+str(cell+1), 'PMF':PMFBuffer} # Temp df    
-            
+            if cell > 9:
+                df_tmp1 = {'Cells': "cellA"+str(cell), 'PMF':PMFBuffer} # Temp df
+                df_tmp = pd.DataFrame([['cellA' + str(cell), PMFBuffer]])    
+            else:
+                df_tmp1 = {'Cells': "cell"+str(cell), 'PMF':PMFBuffer} # Temp df    
+                df_tmp = pd.DataFrame([['cell' + str(cell), PMFBuffer]])   
+
             df_tmp = pd.read_csv(file_name_MAC) # Read the map to insert new pmf
             df_tmp = df_tmp.append(df_tmp1, ignore_index = True)
-            df_tmp.to_csv(file_name_MAC, index=False)
+            df_tmp.head().to_csv(file_name_MAC, index=False)
             PMFBuffer = [0 for q in range(100)]
 
         else: # If the file does not exist, create and format the file
 
             for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
-                if(isinstance(row[j+1], int)): # Check if there is a sample at the index. not NaN
+                if not pd.isna(row[j+1]): # Check if there is a sample at the index. not NaN
                     PMFBuffer[int(-row[j+1])] +=1
             
             # Obtain sum of the histogram for normalization
@@ -143,9 +148,15 @@ def create_pmf(dir,cell):
                 sum = sum + PMFBuffer[j]; 
 
             for j in range(len(PMFBuffer)): # Normalize histogram for pmf
-                PMFBuffer[j] = PMFBuffer[j]/float(sum)
-
-            df_tmp = pd.DataFrame([['cell' + str(cell+1), PMFBuffer]])
+                PMFBuffer[j] = round(PMFBuffer[j]/float(sum),3)
+            
+            if cell > 9:
+                df_tmp1 = {'Cells': "cellA"+str(cell), 'PMF':PMFBuffer} # Temp df
+                df_tmp = pd.DataFrame([['cellA' + str(cell), PMFBuffer]])    
+            else:
+                df_tmp1 = {'Cells': "cell"+str(cell), 'PMF':PMFBuffer} # Temp df    
+                df_tmp = pd.DataFrame([['cell' + str(cell), PMFBuffer]])
+            
             df_tmp.columns = ['Cells', 'PMF']
             df_tmp.to_csv(file_name_MAC, index=False)
             PMFBuffer = [0 for q in range(100)]
@@ -221,14 +232,25 @@ def add_missing_cells(dir,cell_number):
         df = pd.read_csv(dir) # Read the cell data into a df
         cells = df['Cells'].tolist() # Get list of present celss
         for cell in range(1, cell_number+1):
-            if not 'cell'+ str(cell) in cells:
-                df_tmp = {'Cells': 'cell'+ str(cell), 'PMF':emptyPMF} # Temp df    
-                df = df.append(df_tmp, ignore_index = True)
-                df = df.sort_values('Cells') # Sort so that rows go from cell1 to cell<cell_number> 
-                df.to_csv(dir, index=False, header = None)
-            else:
-                df.to_csv(dir, index=False, header = None) # To get rid of the header
 
+            if cell > 9:
+                if not 'cellA'+ str(cell) in cells:
+                    df_tmp = {'Cells': 'cellA'+ str(cell), 'PMF':emptyPMF} # Temp df    
+                    df = df.append(df_tmp, ignore_index = True)
+                    df = df.sort_values('Cells') # Sort so that rows go from cell1 to cell<cell_number> 
+                    df.to_csv(dir, index=False, header = None)
+                else:
+                    df.to_csv(dir, index=False, header = None) # To get rid of the header
+                
+            else:            
+                if not 'cell'+ str(cell) in cells:
+                    df_tmp = {'Cells': 'cell'+ str(cell), 'PMF':emptyPMF} # Temp df    
+                    df = df.append(df_tmp, ignore_index = True)
+                    df = df.sort_values('Cells') # Sort so that rows go from cell1 to cell<cell_number> 
+                    df.to_csv(dir, index=False, header = None)
+                else:
+                    df.to_csv(dir, index=False, header = None) # To get rid of the header
+    
     else:
         print("Directory does not exist")
    
