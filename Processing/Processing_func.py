@@ -1,11 +1,10 @@
+from multiprocessing import parent_process
 import pandas as pd
 import os
 import numpy as np
 from os.path import exists
-import csv
-import glob
 
-    
+   
 """
 This function adds commas to the first line of a csv to be able to obtain a pandas df
 """
@@ -55,7 +54,9 @@ def cleanup_csv(DataFile):
         text = text.replace("[", "")
         text = text.replace("]", "")
         text = text.replace(" ", "")
-        text = text.replace("\"", "")
+        text = text.replace("\\n","")
+        text = text.replace("'","")
+        text = text.replace('"',"")
     
     with open(DataFile, 'w') as my_file:
         my_file.write(text)
@@ -64,35 +65,35 @@ def cleanup_csv(DataFile):
 Checks whether there is a mac address occuring twice. As this could have happened at the beginning of the measurements. 
 """
 
-def duplicate_check(day):
+def duplicate_check(parentDirectory,cell,day):
     
     duplicates = []
 
-    for i in range(1,16):
-        # Select all direction files 
-        pathNorth = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + "_North.txt")
-        pathEast = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + " _East.txt")
-        pathSouth = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + "_South.txt")
-        pathWest = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(i) + "_" + day + "_West.txt")
+    
+    # Select all direction files 
+    pathNorth = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(cell) + "_" + day + "_North.txt")
+    pathEast  = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(cell) + "_" + day + "_East.txt")
+    pathSouth = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(cell) + "_" + day + "_South.txt")
+    pathWest  = os.path.join(parentDirectory,"App2_data_" + day,"saved_data_cell" + str(cell) + "_" + day + "_West.txt")
 
-        # Read text file and get mac address as index 
-        dfNorth = pd.read_csv(pathNorth, header = None)
-        dfEast = pd.read_csv(pathEast, header = None)
-        dfSouth = pd.read_csv(pathSouth, header = None)
-        dfWest = pd.read_csv(pathWest, header = None)
+    # Read text file and get mac address as index 
+    dfNorth = pd.read_csv(pathNorth, header = None)
+    dfEast = pd.read_csv(pathEast, header = None)
+    dfSouth = pd.read_csv(pathSouth, header = None)
+    dfWest = pd.read_csv(pathWest, header = None)
 
-        duplicateRowsNorth = dfNorth[dfNorth.duplicated([0])]
-        if not duplicateRowsNorth.empty:
-            duplicate.append(str(i)+"_North")
+    duplicateRowsNorth = dfNorth[dfNorth.duplicated([0])]
+    if not duplicateRowsNorth.empty:
+        duplicates.append(str(cell)+"_North")
 
-        if not dfEast[dfEast.duplicated([0])].empty:
-            duplicate.append(str(i)+"_East")
-        
-        if not dfWest[dfWest.duplicated([0])].empty:
-            duplicate.append(str(i)+"_West")
-        
-        if not dfSouth[dfSouth.duplicated([0])].empty:
-            duplicate.append(str(i)+"_South")
+    if not dfEast[dfEast.duplicated([0])].empty:
+        duplicates.append(str(cell)+"_East")
+    
+    if not dfWest[dfWest.duplicated([0])].empty:
+        duplicates.append(str(cell)+"_West")
+    
+    if not dfSouth[dfSouth.duplicated([0])].empty:
+        duplicates.append(str(cell)+"_South")
 
     return duplicates
 
@@ -105,12 +106,13 @@ def create_pmf(dir,cell):
     PMFBuffer = [0 for i in range(100)] # Assume signal strength values range from 0 to -100
     df_init = pd.read_csv(dir,header = None) # Read the cell data into a df
     sampleSize = df_init.shape[1]-1 # Maximum number of samples for a single measurement
-
+    print("cell number = ",cell)
     # Iterate over each row of the dataframe
     for index, row in df_init.iterrows():
         file_name_MAC = "MACpmf/" + row[0].replace(":","_") + ".csv" # File where the radar map will be placed, without the replace function couldn't save it on windows 
-
+        print(f' MAC address {row[0]} and cell {cell}')
         if(exists(file_name_MAC)): # If the file already exists insert new row
+
             for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
                 
                 if not pd.isna(row[j+1]): # Check if there is a sample at the index. not NaN
@@ -139,6 +141,7 @@ def create_pmf(dir,cell):
         else: # If the file does not exist, create and format the file
 
             for j in range(sampleSize): # Obtain the histogram by increasing the array by index of the present signal
+                
                 if not pd.isna(row[j+1]): # Check if there is a sample at the index. not NaN
                     PMFBuffer[int(-row[j+1])] +=1
             
@@ -146,6 +149,8 @@ def create_pmf(dir,cell):
             sum = 0;     
             for j in range(0, len(PMFBuffer)):    
                 sum = sum + PMFBuffer[j]; 
+
+            print("normal sum", sum)
 
             for j in range(len(PMFBuffer)): # Normalize histogram for pmf
                 PMFBuffer[j] = round(PMFBuffer[j]/float(sum),3)
@@ -174,7 +179,7 @@ def concat_directions(parentDirectory, day, cell):
     for dir in fourDirections:
         
         filename = "saved_data_cell" + str(cell) + "_" + day + "_" + dir + ".txt"
-        path = os.path.join(parentDirectory,"GatherData_Bayes", day +"2_dir",filename)
+        path = os.path.join(parentDirectory,"GatherData_Bayes", day +"_dir",filename)
 
         # Put all the mac addresses with RSSI values in a dict
         with open(path,"r") as dataFile:
@@ -187,7 +192,7 @@ def concat_directions(parentDirectory, day, cell):
                     totall[split_list[0]] = split_list[1].split(",")
             dataFile.close()
     
-    pathNew = os.path.join(parentDirectory, "GatherData_Bayes", day +"2_dir", "saved_data_cell" + str(cell) + "_All.txt")
+    pathNew = os.path.join(parentDirectory, "GatherData_Bayes", day +"_dir", "saved_data_cell" + str(cell) + "_" + day + "_All.txt")
     
     # Save the dict 
     with open(pathNew, 'w') as f: 
@@ -197,8 +202,11 @@ def concat_directions(parentDirectory, day, cell):
     
     # Clean up the file to make it a proper csv 
     cleanup_csv(pathNew)
-
- def filter_top_mac(dataFile,interest,saveLoc):
+        
+"""
+Filters the top #interest most ocurring mac addresses and saves it in a seperate txt at saveLoc
+"""
+def filter_top_mac(dataFile,interest,saveLoc):
 
     dataFrame = pd.read_csv(dataFile, header = None)
     lengthDf = len(dataFrame)
@@ -253,4 +261,14 @@ def add_missing_cells(dir,cell_number):
     
     else:
         print("Directory does not exist")
-   
+
+
+
+if __name__ == "__main__":
+    filter_top_mac("saved_data_cell1_Tuesday.csv",10, "toptest.txt")
+    
+    # testSaveData = pd.read_csv("saved_data_cell1_Tuesday.csv", header = None)
+    # testDuplicate = testSaveData[testSaveData.duplicated([0])]
+    
+    # if not testDuplicate.empty:
+    #     print("duplicate")
