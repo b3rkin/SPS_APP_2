@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+
 public class MainActivity extends AppCompatActivity {
 
     // Declare the widget variables.
@@ -37,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
                 switchToTestingActivity();
             }
         });
+
+
+
     }
 
     private void switchToTrainingActivity() {
