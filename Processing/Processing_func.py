@@ -101,9 +101,13 @@ def duplicate_check(parentDirectory,cell,day):
 Walks through obtained data files and saves for each mac address the pmf per cell. Each mac address gets its own file. 
 """
 
-def create_pmf(dir,cell):
+def create_pmf(dir,cell, convolution = True, CONV_SCALING_1 = 0.5, CONV_SCALING_2 = 0.25, CONV_SCALING_3 = 0.1):
 
-    PMFBuffer = [0 for i in range(100)] # Assume signal strength values range from 0 to -100
+    PMFBuffer = [0 for i in range(100)] # Assume signal strength values range from 0 to -99
+
+    if(convolution): # Array that will hold the additional values
+        PMFBufferTMP = [0 for i in range(100)] # Assume signal strength values range from 0 to -99
+
     df_init = pd.read_csv(dir,header = None) # Read the cell data into a df
     sampleSize = df_init.shape[1]-1 # Maximum number of samples for a single measurement
     print("cell number = ",cell)
@@ -117,7 +121,23 @@ def create_pmf(dir,cell):
                 
                 if not pd.isna(row[j+1]): # Check if there is a sample at the index. not NaN
                     PMFBuffer[int(-row[j+1])] +=1
-            
+                    if(convolution):
+                        if(int(-row[j+1])+1)<100: 
+                            PMFBufferTMP[int(-row[j+1])+1] += (1 * CONV_SCALING_1) 
+                        if(int(-row[j+1])-1>-1):
+                            PMFBufferTMP[int(-row[j+1])-1] += (1 * CONV_SCALING_1) 
+                        if(int(-row[j+1])+2<100):
+                            PMFBufferTMP[int(-row[j+1])+2] += (1 * CONV_SCALING_2)
+                        if(int(-row[j+1])-2>-1):
+                            PMFBufferTMP[int(-row[j+1])-2] += (1 * CONV_SCALING_2) 
+                        if(int(-row[j+1])+3<100):
+                            PMFBufferTMP[int(-row[j+1])+3] += (1 * CONV_SCALING_3) 
+                        if(int(-row[j+1])-3>-1):
+                            PMFBufferTMP[int(-row[j+1])-3] += (1 * CONV_SCALING_3)
+
+            if convolution:
+                for j in range(len(PMFBuffer)):
+                    PMFBuffer[j] += PMFBufferTMP[j] 
             # Obtain sum of the histogram for normalization
             sum = 0;     
             for j in range(0, len(PMFBuffer)):    
@@ -137,6 +157,8 @@ def create_pmf(dir,cell):
             df_tmp = df_tmp.append(df_tmp1, ignore_index = True)
             df_tmp.head().to_csv(file_name_MAC, index=False)
             PMFBuffer = [0 for q in range(100)]
+            if convolution:
+                PMFBufferTMP = [0 for q in range(100)]
 
         else: # If the file does not exist, create and format the file
 
@@ -144,7 +166,21 @@ def create_pmf(dir,cell):
                 
                 if not pd.isna(row[j+1]): # Check if there is a sample at the index. not NaN
                     PMFBuffer[int(-row[j+1])] +=1
-            
+                        if(convolution):
+                        if(int(-row[j+1])+1)<100: 
+                            PMFBufferTMP[int(-row[j+1])+1] += (1 * CONV_SCALING_1) 
+                        if(int(-row[j+1])-1>-1):
+                            PMFBufferTMP[int(-row[j+1])-1] += (1 * CONV_SCALING_1) 
+                        if(int(-row[j+1])+2<100):
+                            PMFBufferTMP[int(-row[j+1])+2] += (1 * CONV_SCALING_2)
+                        if(int(-row[j+1])-2>-1):
+                            PMFBufferTMP[int(-row[j+1])-2] += (1 * CONV_SCALING_2) 
+                        if(int(-row[j+1])+3<100):
+                            PMFBufferTMP[int(-row[j+1])+3] += (1 * CONV_SCALING_3) 
+                        if(int(-row[j+1])-3>-1):
+                            PMFBufferTMP[int(-row[j+1])-3] += (1 * CONV_SCALING_3)
+            if convolution:
+                PMFBuffer += PMFBufferTMP 
             # Obtain sum of the histogram for normalization
             sum = 0;     
             for j in range(0, len(PMFBuffer)):    
@@ -165,6 +201,10 @@ def create_pmf(dir,cell):
             df_tmp.columns = ['Cells', 'PMF']
             df_tmp.to_csv(file_name_MAC, index=False)
             PMFBuffer = [0 for q in range(100)]
+
+            if convolution:
+                for j in range(len(PMFBuffer)):
+                    PMFBuffer[j] += PMFBufferTMP[j] 
 
 """
 Used to combine the different csv files of the different directions 
@@ -272,3 +312,5 @@ if __name__ == "__main__":
     
     # if not testDuplicate.empty:
     #     print("duplicate")
+
+
