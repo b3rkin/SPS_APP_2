@@ -16,28 +16,30 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.749" />
+        app:layout_constraintVertical_bias="0.986" />
 
     <TextView
         android:id="@+id/textViewTestResult"
-        android:layout_width="98dp"
-        android:layout_height="56dp"
-        android:layout_marginEnd="76dp"
+        android:layout_width="123dp"
+        android:layout_height="38dp"
+        android:layout_marginEnd="188dp"
         app:layout_constraintBottom_toTopOf="@+id/buttonTestMeasure"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.331" />
+        app:layout_constraintVertical_bias="0.055" />
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="135dp"
-        android:layout_height="56dp"
+        android:layout_width="170dp"
+        android:layout_height="40dp"
         android:text="You are in cell:"
-        android:textSize="20sp"
+        android:textAlignment="center"
+        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textViewTestResult"
-        app:layout_constraintHorizontal_bias="0.598"
+        app:layout_constraintHorizontal_bias="0.692"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.225" />
+        app:layout_constraintVertical_bias="0.043" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
