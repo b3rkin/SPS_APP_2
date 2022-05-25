@@ -8,28 +8,30 @@
 
     <Button
         android:id="@+id/buttonTestMeasure"
-        android:layout_width="260dp"
-        android:layout_height="44dp"
-        android:text="Click for measurement"
+        android:layout_width="170dp"
+        android:layout_height="35dp"
+        android:text="Localize "
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.112"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.986" />
+        app:layout_constraintVertical_bias="0.901" />
 
     <TextView
         android:id="@+id/textViewTestResult"
-        android:layout_width="123dp"
-        android:layout_height="38dp"
-        android:layout_marginEnd="188dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonTestMeasure"
+        android:layout_width="42dp"
+        android:layout_height="39dp"
+        android:layout_marginEnd="260dp"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.055" />
+        app:layout_constraintVertical_bias="0.061" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/textViewCellIndicator"
         android:layout_width="170dp"
         android:layout_height="40dp"
         android:text="You are in cell:"
@@ -37,9 +39,247 @@
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textViewTestResult"
-        app:layout_constraintHorizontal_bias="0.692"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.043" />
+        app:layout_constraintVertical_bias="0.061" />
+
+    <ImageView
+        android:id="@+id/imageViewBuildingLayout"
+        android:layout_width="605dp"
+        android:layout_height="267dp"
+        android:src="@drawable/building_layout_app"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC1"
+        android:layout_width="22dp"
+        android:layout_height="33dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintHorizontal_bias="0.105"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintVertical_bias="0.735"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC2"
+        android:layout_width="30dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="540dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintVertical_bias="0.378"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC3"
+        android:layout_width="32dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="543dp"
+        android:layout_marginBottom="200dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintVertical_bias="1.0"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC4"
+        android:layout_width="25dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="128dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="452dp"
+        android:layout_marginBottom="177dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintVertical_bias="0.0"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC5"
+        android:layout_width="26dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="241dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="338dp"
+        android:layout_marginBottom="173dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC6"
+        android:layout_width="25dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="349dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="231dp"
+        android:layout_marginBottom="174dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC7"
+        android:layout_width="26dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="449dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="130dp"
+        android:layout_marginBottom="172dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC8"
+        android:layout_width="27dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="449dp"
+        android:layout_marginTop="102dp"
+        android:layout_marginEnd="129dp"
+        android:layout_marginBottom="133dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC9"
+        android:layout_width="32dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="545dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="200dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC10"
+        android:layout_width="32dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="545dp"
+        android:layout_marginTop="77dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="133dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintVertical_bias="0.0"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC11"
+        android:layout_width="22dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="521dp"
+        android:layout_marginTop="157dp"
+        android:layout_marginEnd="62dp"
+        android:layout_marginBottom="56dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC12"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="467dp"
+        android:layout_marginTop="234dp"
+        android:layout_marginEnd="113dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC13"
+        android:layout_width="32dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="286dp"
+        android:layout_marginTop="134dp"
+        android:layout_marginEnd="287dp"
+        android:layout_marginBottom="82dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC14"
+        android:layout_width="32dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="349dp"
+        android:layout_marginTop="115dp"
+        android:layout_marginEnd="224dp"
+        android:layout_marginBottom="95dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
+
+    <ImageView
+        android:id="@+id/imageViewPinC15"
+        android:layout_width="32dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="217dp"
+        android:layout_marginTop="134dp"
+        android:layout_marginEnd="356dp"
+        android:layout_marginBottom="76dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintStart_toStartOf="@+id/imageViewBuildingLayout"
+        app:layout_constraintTop_toTopOf="@+id/imageViewBuildingLayout"
+        android:visibility="gone"
+        app:srcCompat="@drawable/map_pin_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
