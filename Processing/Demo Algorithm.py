@@ -90,12 +90,12 @@ for i in range(1,cell_number+1):
             posterior = calc_posterior(sortTest,initial_belief)
         else:
             posterior = calc_posterior(sortTest,posterior)
-        # print(posterior)
-        # print("\n")
-        # print(f' real cell = {i} and predicted cell = {posterior.index(max(posterior))+1}')
-        # print(posterior)
+
+        print(f' real cell = {i} and predicted cell = {posterior.index(max(posterior))+1}')
 
         if dir == "South":
+            print(f' real cell = {i} and predicted cell = {posterior.index(max(posterior))+1}')
+
             if i == posterior.index(max(posterior))+1:
                 good.append(i)
             if i == posterior.index(max(posterior)) or i == posterior.index(max(posterior)) + 2:
