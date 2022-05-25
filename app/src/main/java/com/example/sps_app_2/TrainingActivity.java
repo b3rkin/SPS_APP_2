@@ -55,7 +55,7 @@ public class TrainingActivity extends AppCompatActivity {
 
                 // HashMap to save all the data. Later saved
                 HashMap<String,ArrayList<Integer>> DataHash = new HashMap<>();
-                boolean testFlag = false;
+                boolean testFlag = true;
 
                 // Store data to test training model as using hashmap is inconvenient
                 List <String> testWifiDesired = new ArrayList<>();
@@ -177,7 +177,7 @@ public class TrainingActivity extends AppCompatActivity {
         FileOutputStream fos = null;
 
         try{
-            fos = openFileOutput(FILE_NAME,MODE_APPEND);
+            fos = openFileOutput(FILE_NAME,MODE_PRIVATE);
             fos.write(testData.getBytes());
             Toast.makeText(getApplicationContext(), "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
         } catch (FileNotFoundException e){
