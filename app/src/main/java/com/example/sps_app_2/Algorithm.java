@@ -18,34 +18,85 @@ import android.net.wifi.ScanResult;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import com.example.sps_app_2.TestingActivity.*;
+
 
 public class Algorithm{
 
     /**
-     * To get the three strongest mac addresses
+     * Create a list of mac and corresponding Rssi values
      * @param scanResults acquired wifi measurement data
-     * @return the three strongest mac addresses
+     * @return ist of mac and corresponding Rssi values
      */
-    static Pair<String, Integer> strongest_mac_value(List <ScanResult> scanResults) {
+    static List<Pair<String, Integer>> list_of_pairs(List <ScanResult> scanResults) {
 
-        int maxSignalStrength = -100;
-        Pair <String, Integer> maxSignal = Pair.create("test",3);
+       List <Pair<String,Integer>> pairList = new ArrayList<>();
+
         for (ScanResult scanResult : scanResults) {
 
             int RSSI = scanResult.level;
             String macAddress = scanResult.BSSID;
 
             Pair <String, Integer> macAndSignal = Pair.create(macAddress,RSSI);
-
-            if (RSSI < maxSignalStrength) {
-                maxSignal = macAndSignal;
-
+            pairList.add(macAndSignal);
             }
-        }
-        return maxSignal;
+        return pairList;
     }
 
-    static void calc_posterior(List<Strings> sortedTestPoint, List<Integer> prior) {
+    /**
+     *
+     * @param wifiData
+     * @return
+     */
+    static Pair<String, Integer> strongest_signal(List <Pair<String,Integer>> wifiData){
+
+        int length = wifiData.size();
+        int maxSignalStrength = -100;
+        Pair <String,Integer> bestSignal = Pair.create("empty",0);
+
+        for (int i = 0; i<length; i++){
+            Pair<String, Integer> signalPair = wifiData.get(i);
+            int Rssi  = signalPair.second;
+
+            if (Rssi > maxSignalStrength){
+                maxSignalStrength = Rssi;
+                bestSignal = signalPair;
+            }
+        }
+        wifiData.remove(bestSignal);
+        return bestSignal;
+    }
+
+
+    static Float[] calc_posterior(List<String[]> pmf, Float[] prior, Pair<String, Integer> strongestPair, int cellNumber) {
+
+        Float[] posterior = new Float[cellNumber];
+
+        // Get the strongest Wifi and Mac combination
+        Log.i("debug","measurementmac " + strongestPair.first);
+        int strongestSignal = strongestPair.second;
+//        int strongestSignal = -86;
+        Log.i("debug", "strongest" + Integer.toString(strongestSignal));
+
+        // Calculate the posterior
+        for (int k = 0; k < cellNumber; k++) {
+            posterior[k] = prior[k] * Float.parseFloat(pmf.get(k)[-strongestSignal]);
+        }
+        // sum the posterior to normalize it
+        float sumPosterior = 0;
+        for (Float aFloat : posterior) {
+            sumPosterior = sumPosterior + aFloat;
+        }
+
+        // Check whether the sum is zero, if not then normalize the posterior
+        if (sumPosterior == 0) {
+            return posterior;
+        } else {
+            for (int j = 0; j < posterior.length; j++) {
+                posterior[j] = posterior[j] / sumPosterior;
+            }
+        }
+        return posterior;
     }
 }
 
