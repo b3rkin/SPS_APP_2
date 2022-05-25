@@ -177,7 +177,7 @@ public class TrainingActivity extends AppCompatActivity {
         FileOutputStream fos = null;
 
         try{
-            fos = openFileOutput(FILE_NAME,MODE_PRIVATE);
+            fos = openFileOutput(FILE_NAME,MODE_APPEND);
             fos.write(testData.getBytes());
             Toast.makeText(getApplicationContext(), "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
         } catch (FileNotFoundException e){
