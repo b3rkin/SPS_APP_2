@@ -55,7 +55,7 @@ public class TrainingActivity extends AppCompatActivity {
 
                 // HashMap to save all the data. Later saved
                 HashMap<String,ArrayList<Integer>> DataHash = new HashMap<>();
-                boolean testFlag = true;
+                boolean testFlag = false;
 
                 // Store data to test training model as using hashmap is inconvenient
                 List <String> testWifiDesired = new ArrayList<>();
@@ -92,34 +92,37 @@ public class TrainingActivity extends AppCompatActivity {
                         }
 
                         // Check if we already measured the mac address
-                        if (DataHash.containsKey(MacAddress)) {
-                            ArrayList<Integer> NewList = DataHash.get(MacAddress);
-                            assert NewList != null;
-                            NewList.add(RSSI);
-                            DataHash.put(MacAddress, NewList);
-                        } else {
-                            ArrayList<Integer> RSSIValues = new ArrayList<>();
-                            RSSIValues.add(RSSI);
-                            DataHash.put(MacAddress, RSSIValues);
+                        if(!testFlag){
+                            if (DataHash.containsKey(MacAddress)) {
+                                ArrayList<Integer> NewList = DataHash.get(MacAddress);
+                                assert NewList != null;
+                                NewList.add(RSSI);
+                                DataHash.put(MacAddress, NewList);
+                            } else {
+                                ArrayList<Integer> RSSIValues = new ArrayList<>();
+                                RSSIValues.add(RSSI);
+                                DataHash.put(MacAddress, RSSIValues);
+                            }
                         }
                     }
 
-                    if (testFlag){
-                        Log.i("debug","passed test flag #2");
-
-                        break;
-                    }
+//                    if (testFlag){
+//                        Log.i("debug","passed test flag #2");
+//
+//                        break;
+//                    }
 
 
                     // Each measurement takes one second
                     try {
-                        TimeUnit.SECONDS.sleep(1);
+                        TimeUnit.SECONDS.sleep(2);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     Log.i("debug",Integer.toString(iter));
 
                     endLoop = currentTimeMillis();
+                    testWifiDesired.add("\n" + "*");
                 }
 
                 if (testFlag){

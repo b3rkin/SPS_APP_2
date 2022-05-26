@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import static com.example.sps_app_2.Algorithm.*;
 
 
@@ -60,7 +62,7 @@ public class TestingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_testing);
 
 
-        // Register the button and text box
+        // Register the button, text box and pins for on the map
         testingButton = (Button) findViewById(R.id.buttonTestMeasure);
         predictedCell = (TextView) findViewById(R.id.textViewTestResult);
         pinC1 = (ImageView)findViewById(R.id.imageViewPinC1);
@@ -98,7 +100,6 @@ public class TestingActivity extends AppCompatActivity {
                 pinC14.setVisibility(View.GONE);
                 pinC15.setVisibility(View.GONE);
 
-
                 // Wifi manager
                 wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -107,44 +108,22 @@ public class TestingActivity extends AppCompatActivity {
                 Float initBeliefValue = 1f / cellNumber.floatValue();
                 Arrays.fill(initBelief, initBeliefValue);
 
-                // Initialize the posterior
-                Float[] posterior = new Float[cellNumber];
-                Log.i("debug", "#1");
+                // Calc the posterior through three measurements
+                Float[] posterior = oneMeasurementAnalysis(initBelief,cellNumber);
+                Float[] posterior1 = oneMeasurementAnalysis(posterior,cellNumber);
+                Float[] posterior2 = oneMeasurementAnalysis(posterior1,cellNumber);
 
-                posterior = oneMeasurementAnalysis(initBelief,cellNumber);
                 int maxAt = 0;
                 for (int i = 0; i < posterior.length; i++) {
                     maxAt = posterior[i] > posterior[maxAt] ? i : maxAt;
                 }
-                String outputMessage = String.valueOf(maxAt + 1);
 
-                Float[] posterior1 = oneMeasurementAnalysis(posterior,cellNumber);
-                maxAt = 0;
-                for (int i = 0; i < posterior1.length; i++) {
-                    maxAt = posterior1[i] > posterior1[maxAt] ? i : maxAt;
-                }
-                outputMessage += String.valueOf(maxAt + 1);
-
-                Float[] posterior2 = oneMeasurementAnalysis(posterior1,cellNumber);
                 maxAt = 0;
                 for (int i = 0; i < posterior2.length; i++) {
                     maxAt = posterior2[i] > posterior2[maxAt] ? i : maxAt;
                 }
-                outputMessage += String.valueOf(maxAt + 1);
 
-                Float[] posterior3 = oneMeasurementAnalysis(posterior2,cellNumber);
-                maxAt = 0;
-                for (int i = 0; i < posterior3.length; i++) {
-                    maxAt = posterior3[i] > posterior3[maxAt] ? i : maxAt;
-                }
-                outputMessage += String.valueOf(maxAt + 1);
-                Float[] posteriorFinal = oneMeasurementAnalysis(posterior3,cellNumber);
-
-                maxAt = 0;
-                for (int i = 0; i < posteriorFinal.length; i++) {
-                    maxAt = posteriorFinal[i] > posteriorFinal[maxAt] ? i : maxAt;
-                }
-                outputMessage += String.valueOf(maxAt + 1);
+                String outputMessage = String.valueOf(maxAt + 1);//
 
                 predictedCell.setText(outputMessage);// (row_index,column_index)
 
@@ -197,11 +176,7 @@ public class TestingActivity extends AppCompatActivity {
                     default:
                         break;
                 }
-
-
             }
-
-        //TODO: Need to implement getLocation algorithm that returns string with the result
         });
     }
 
@@ -226,9 +201,10 @@ public class TestingActivity extends AppCompatActivity {
         }
         return list;
     }
+
     private Float[] oneMeasurementAnalysis(Float[] prior,int cellNumber){
 
-        // Each measurement must have an interval of a second
+        // Between two measurements must be an interval of a second
         try {
             TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {
@@ -238,43 +214,77 @@ public class TestingActivity extends AppCompatActivity {
         // Start scan
         wifiManager.startScan();
         List<ScanResult> scanResults = wifiManager.getScanResults();
-        Log.i("debug", "#2");
 
         Float[] posterior = new Float[cellNumber];
+        Float[] posteriorCalc;
+
         // Order acquired wifi data in list of pairs
         List<Pair<String, Integer>> wifiDataPairs = list_of_pairs(scanResults);
 
-        boolean flag = true;
-        int iter = 0;
-        Log.i("debug", "#3");
+        // Set it to router pairs
+        List<Pair<String, Integer>> wifiRouterPairs = router_address(wifiDataPairs);
 
-        while (flag == true) {
+        // Number of router addresses
+        //=====testing
+
+//        List<Pair<String,Integer>> wifiRouterPairs = new ArrayList<>();
+//        Pair<String,Integer> test1 = Pair.create("1c:28:af:61:f9:0", -57);
+//        Pair<String,Integer> test2 = Pair.create("1c:28:af:61:f9:0", -58);
+//        Pair<String,Integer> test3 = Pair.create("1c:28:af:61:f9:0", -59);
+//        Pair<String,Integer> test4 = Pair.create("1c:28:af:61:f9:0", -60);
+//
+//        wifiRouterPairs.add(test1);
+//        wifiRouterPairs.add(test2);
+//        wifiRouterPairs.add(test3);
+//        wifiRouterPairs.add(test4);
+
+        //========
+
+        int numRouters = wifiRouterPairs.size();
+
+        boolean flag = true;
+        int iterMAC = 0;
+        int numUsedMAC = 12;
+
+        while (flag) {
 
             flag = false;
+            iterMAC++;
 
+            // To prevent it is looking at too many routers
+            if (iterMAC>numRouters){
+                break;
+            }
             // Get the best MAC
-            Pair<String, Integer> strongestPair = wifiDataPairs.get(iter);
-            iter = iter + 1;
-            Log.i("debug", "measurementmac " + strongestPair.first);
+            Pair<String, Integer> strongestPair = wifiRouterPairs.get(0);
 
             // The elements of the opened pmf can be fetched with list.get(row_index)[column_index]
-            Log.i("debug", "#10");
 
             List<String[]> pmf = read_csv(strongestPair.first);
-
             // Calc posterior
-            posterior = calc_posterior(pmf, prior, strongestPair, cellNumber);
-            Log.i("debug", "#10111111");
+
+            posteriorCalc = calc_posterior(pmf, prior, strongestPair, cellNumber);
 
             // If posterior is zero stay in while loop and go to next mac
             float sumPosterior = 0;
-            for (Float aFloat : posterior) {
+            for (Float aFloat : posteriorCalc) {
                 sumPosterior = sumPosterior + aFloat;
             }
+
+            // To prevent that the posterior becomes zero through a false measurement it is checked whether the sum is zero.
             if (sumPosterior == 0) {
                 flag = true;
+                iterMAC--;
+            } else{
+                posterior = posteriorCalc;
             }
-            Log.i("debug", "#5");
+            if (numUsedMAC > iterMAC){
+                flag = true;
+            }
+
+            // By removing the strongest signal the test data can be walked through in an ascending order.
+            Log.i("debug",wifiRouterPairs.toString());
+            wifiRouterPairs.remove(strongestPair);
         }
         return posterior;
     }

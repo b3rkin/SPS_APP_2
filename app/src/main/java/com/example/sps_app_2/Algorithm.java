@@ -67,16 +67,13 @@ public class Algorithm{
         return bestSignal;
     }
 
-
     static Float[] calc_posterior(List<String[]> pmf, Float[] prior, Pair<String, Integer> strongestPair, int cellNumber) {
 
         Float[] posterior = new Float[cellNumber];
 
         // Get the strongest Wifi and Mac combination
-        Log.i("debug","measurementmac " + strongestPair.first);
         int strongestSignal = strongestPair.second;
 //        int strongestSignal = -86;
-        Log.i("debug", "strongest" + Integer.toString(strongestSignal));
 
         // Calculate the posterior
         for (int k = 0; k < cellNumber; k++) {
@@ -98,7 +95,28 @@ public class Algorithm{
         }
         return posterior;
     }
+
+    static List <Pair<String,Integer>> router_address(List <Pair<String,Integer>> wifiData){
+
+        int numberOfPoints = wifiData.size();
+        List<String> routerAddress = new ArrayList<>();
+        List<Pair<String,Integer>> routerData = new ArrayList<>();
+
+        // Loop through points of pairs
+        for(int i=0;i<numberOfPoints;i++){
+            String macAddress = wifiData.get(i).first;
+            String router = macAddress.substring(0,macAddress.length()-1);
+
+            if (!routerAddress.contains(router)){
+                routerAddress.add(router);
+                Pair <String, Integer> newPair = Pair.create(router,wifiData.get(i).second);
+                routerData.add(newPair);
+            }
+        }
+    return routerData;
+   }
 }
+
 
 
 
